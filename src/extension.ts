@@ -35,13 +35,10 @@ export function activate(context: vscode.ExtensionContext): void {
             mocha.run(failures => {
                 if (failures > 0) {
                     e(new Error(`${failures} tests failed.`));
-                } else {
-                    e('test');
                 }
             });
         } catch (err) {
             e(err);
-            console.log(err);
         }
     });
     console.log('Attempting to grab all the tests');
