@@ -1,14 +1,16 @@
 {
-	"compilerOptions": {
-		"outDir": "./out",
-		"lib": [
-			"es2015"
-		]
-	},
-	"include": [
-		"src/**/*"
-	],
-	"exclude": [
-		"node_modules"
-	]
+    "extends": "/projects/theia/configs/base.tsconfig",
+    "compilerOptions": {
+        "target": "es5",
+        "lib": [
+            "es6",
+            "webworker"
+        ],
+        "sourceMap": true,
+        "rootDir": "src",
+        "outDir": "lib"
+    },
+    "include": [
+        "src"
+    ]
 }

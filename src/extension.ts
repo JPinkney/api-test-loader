@@ -4,9 +4,8 @@
  * ------------------------------------------------------------------------------------------ */
 
 import * as vscode from 'vscode';
-import * as path from 'path';
-require('ts-mocha');
-import * as Mocha from 'mocha';
+import * as theia from '@theia/plugin';
+import { findTargetContainer } from './api-loader-machine';
 
 /**
  * This extension should be manually activated via
@@ -18,28 +17,32 @@ import * as Mocha from 'mocha';
  */
 export function activate(context: vscode.ExtensionContext): void {
 
-    console.log('activating api-test-loader');
-    const mocha = new Mocha({
-        ui: 'bdd',
-        timeout: 30000
-    });
-    mocha.useColors(true);
-    const e = (c) => console.log(c);
-    vscode.workspace.findFiles('**/test/*.test.ts', '').then(files => {
 
-        // Add files to the test suite
-        files.forEach(f => mocha.addFile(path.resolve(f.path)));
+    /**
+     * We are going to need to look in the target container and then once we are in the
+     * target container we need to grab all the tests and then run them in the correct
+     * terminal
+     */
+    findTargetContainer('vscode-java').then(targetContainerName => {
+        if (targetContainerName) {
+            const tests = `./test/*.test.ts`;
+            const mochaArgs = `mocha --require ts-node/register --colors --ui tdd ${tests}`;
 
-        try {
-            // Run the mocha test
-            mocha.run(failures => {
-                if (failures > 0) {
-                    e(new Error(`${failures} tests failed.`));
+            const terminalOptions: theia.TerminalOptions = {
+                cwd: '/projectRoot',
+                name: 'Che Tests',
+                shellPath: 'sh',
+                shellArgs: ['-c', mochaArgs],
+
+                attributes: {
+                    CHE_MACHINE_NAME: targetContainerName,
+                    closeWidgetExitOrError: 'false',
+                    interruptProcessOnClose: 'true'
                 }
-            });
-        } catch (err) {
-            e(err);
+            };
+            const terminal = theia.window.createTerminal(terminalOptions);
+            terminal.show();
         }
     });
-    console.log('Attempting to grab all the tests');
+
 }

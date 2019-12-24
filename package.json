@@ -2,19 +2,28 @@
 	"name": "api-test-loader",
 	"description": "Load and run tests in the current workspace",
 	"version": "0.0.1",
-	"publisher": "RedHat",
+	"publisher": "jpinkney",
 	"license": "MIT",
 	"activationEvents": [
 		"*"
 	],
-	"main": "./out/extension",
+	"main": "./lib/extension",
 	"engines": {
-		"vscode": "^1.25.0"
+        "theiaPlugin": "next"
 	},
+    "files": [
+        "src"
+    ],
 	"scripts": {
-		"compile": "tsc -watch -p ./",
-		"postinstall": "node ./node_modules/vscode/bin/install"
-	},
+        "prepare": "yarn clean && yarn build",
+        "clean": "rimraf lib",
+        "format": "tsfmt -r --useTsfmt ../../configs/tsfmt.json",
+        "lint": "tslint -c ../../configs/tslint.json --project tsconfig.json",
+        "lint:fix": "tslint -c ../../configs/tslint.json --fix --project .",
+        "compile": "tsc",
+        "build": "concurrently -n \"format,lint,compile\" -c \"red,green,blue\" \"yarn format\" \"yarn lint\" \"yarn compile\" && theia:plugin pack",
+        "watch": "tsc -w"
+    },
 	"devDependencies": {
 		"@types/mocha": "2.2.43",
 		"@types/node": "^12.11.7",
@@ -22,11 +31,17 @@
 		"mocha-junit-reporter": "^1.17.0",
 		"mocha-multi-reporters": "^1.1.7",
 		"ts-mocha": "^6.0.0",
-		"typescript": "^2.0.x",
-		"vscode": "^1.1.5"
+		"typescript": "^2.0.x"
 	},
 	"dependencies": {
+		"@eclipse-che/api": "^7.5.0-SNAPSHOT",
+		"@eclipse-che/plugin": "0.0.1-1576925688",
+		"@theia/plugin": "^0.14.0",
+		"@types/vscode": "^1.41.0",
 		"ts-node": "^8.5.2",
 		"vscode-test": "^1.2.3"
-	}
+	},
+    "theiaPlugin": {
+        "backend": "lib/extension.js"
+    }
 }
